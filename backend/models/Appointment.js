@@ -7,6 +7,8 @@ const appointmentSchema = new mongoose.Schema({
   timeSlot: { type: String, required: true }, // e.g., "14:00"
   amount: { type: Number, required: true },
   status: { type: String, enum: ['Scheduled', 'Completed', 'Cancelled'], default: 'Scheduled' },
+  razorpayOrderId: { type: String },
+  razorpayPaymentId: { type: String },
   meetingLink: { type: String, default: 'https://meet.google.com/mock-svasthya-room' }
 }, { timestamps: true });
 
