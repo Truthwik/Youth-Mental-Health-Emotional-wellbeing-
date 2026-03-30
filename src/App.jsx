@@ -1,22 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Routes, Route, Link } from 'react-router-dom';
-import { Moon, Sun, HeartPulse, User, LogOut, ChevronDown } from 'lucide-react';
+import { Moon, Sun, HeartPulse, User, LogOut, ChevronDown, ShieldCheck, BrainCircuit, Activity, Calendar as CalendarIcon } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import MentorDashboard from './pages/MentorDashboard';
+import TherapistDashboard from './pages/TherapistDashboard';
 import MilestoneActivity from './pages/MilestoneActivity';
 import Onboarding from './pages/Onboarding';
 import Notes from './pages/Notes';
 import Community from './pages/Community';
 import TherapistProfile from './pages/TherapistProfile';
 import Donate from './pages/Donate';
+import AdminDashboard from './pages/AdminDashboard';
+import MindGames from './pages/MindGames';
+import Profile from './pages/Profile';
+import CalendarModule from './pages/CalendarModule';
 import Logo from './components/Logo';
 import Chatbot from './components/Chatbot';
 import LanguageSelector from './components/LanguageSelector';
+
+const UniversalDashboard = () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (user.role === 'mentor') return <MentorDashboard />;
+  if (user.role === 'therapist') return <TherapistDashboard />;
+  if (user.role === 'admin') return <AdminDashboard />;
+  return <Dashboard />;
+};
 
 export default function App() {
   const { t } = useTranslation();
@@ -64,8 +78,7 @@ export default function App() {
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 glass">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center relative">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-            <HeartPulse className="text-primary-500 w-8 h-8" />
+          <Link to="/" className="flex items-center gap-2 group">
             <Logo />
           </Link>
           
@@ -83,25 +96,34 @@ export default function App() {
                   {wellbeingMenuOpen && (
                     <motion.div 
                        initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:10}}
-                       className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-darkcard border border-gray-100 dark:border-darkborder rounded-2xl shadow-xl p-2 z-[100]"
+                       className="absolute top-full left-0 mt-2 w-52 bg-white dark:bg-darkcard border border-gray-100 dark:border-darkborder rounded-2xl shadow-xl p-2 z-[100]"
                     >
-                       <Link to="/dashboard" className="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-darkbg rounded-xl transition-colors text-gray-700 dark:text-gray-200">
-                          <HeartPulse size={16} className="text-primary-500" /> Dashboard
-                       </Link>
-                       <Link to="/notes" className="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-darkbg rounded-xl transition-colors text-gray-700 dark:text-gray-200">
-                          <span className="text-base">📔</span> Journal
-                       </Link>
-                       <Link to="/community" className="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-darkbg rounded-xl transition-colors text-gray-700 dark:text-gray-200">
-                          <span className="text-base">🌍</span> Community
-                       </Link>
+                        <Link to="/calendar" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-darkbg transition-colors rounded-xl font-black italic">
+                          <CalendarIcon size={16} className="text-primary-500" /> Real-time Planning
+                        </Link>
+                        <Link to="/profile" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-darkbg transition-colors rounded-xl">
+                          <User size={16} className="text-gray-400" /> {t('nav.profile', 'Profile')}
+                        </Link>
+                        <Link to="/relax" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-darkbg transition-colors rounded-xl">
+                          <BrainCircuit size={16} className="text-primary-500" /> {t('nav.relax', 'Zen Hub')}
+                        </Link>
+                        {user.role === 'admin' && (
+                          <Link to="/admin" className="flex items-center gap-3 px-4 py-3 text-sm text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10 transition-colors font-bold rounded-xl">
+                            <ShieldCheck size={16} /> {t('nav.admin', 'Mission Control')}
+                          </Link>
+                        )}
+                        <hr className="my-1 border-gray-100 dark:border-gray-800" />
+                        <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-darkbg transition-colors rounded-xl">
+                          <Activity size={16} className="text-primary-500" /> Dashboard
+                        </Link>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
             )}
 
-            <Link to="/donate" className="text-primary-600 dark:text-primary-400 font-black hover:text-primary-500 transition-colors flex items-center gap-1.5 py-1 px-3 bg-primary-50 dark:bg-primary-900/20 rounded-full border border-primary-100 dark:border-primary-800/30">
-               <HeartPulse size={14} fill="currentColor" /> Support Us
+            <Link to="/donate" className="text-primary-600 dark:text-primary-400 font-black hover:text-primary-500 transition-colors flex items-center gap-1.5 py-1 px-3 bg-primary-300/10 dark:bg-primary-900/20 rounded-full border border-primary-100 dark:border-primary-800/30">
+               Support Us
             </Link>
           </nav>
 
@@ -143,7 +165,16 @@ export default function App() {
                           {t('navbar.logged_in_as', 'Logged in as')} {user.role}
                         </p>
                       </div>
-                      <div className="p-2">
+                      <div className="p-2 space-y-1">
+                        {user.role === 'admin' && (
+                          <Link
+                            to="/admin"
+                            onClick={() => setDropdownOpen(false)}
+                            className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-bold text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10 rounded-xl transition-colors"
+                          >
+                            <ShieldCheck size={16} /> Admin Panel
+                          </Link>
+                        )}
                         <button
                           onClick={handleLogout}
                           className="w-full text-left flex items-center gap-3 px-3 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
@@ -175,11 +206,15 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<UniversalDashboard />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/community" element={<Community />} />
           <Route path="/therapists/:id" element={<TherapistProfile />} />
           <Route path="/donate" element={<Donate />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/relax" element={<MindGames />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/calendar" element={<CalendarModule />} />
           <Route path="/milestone/:type" element={<MilestoneActivity />} />
         </Routes>
       </main>
