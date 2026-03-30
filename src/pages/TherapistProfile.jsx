@@ -49,8 +49,9 @@ export default function TherapistProfile() {
     fetchTherapist();
   }, [id, navigate]);
 
-  const handleBookingConfirm = async () => {
-    setShowPayment(false);
+  const handleBookingConfirm = async (orderId, paymentId) => {
+    // We don't call setShowPayment(false) here because the modal shows the receipt now.
+    // The modal will stay open until user clicks "Done" or closes it manually.
     try {
       const token = localStorage.getItem('token');
       const res = await fetch('http://localhost:5000/api/bookings', {
@@ -63,18 +64,20 @@ export default function TherapistProfile() {
           therapistId: therapist._id,
           date: selectedDate,
           timeSlot: selectedSlot,
-          amount: therapist.hourlyRate || 1000
+          amount: therapist.hourlyRate || 1000,
+          razorpayOrderId: orderId,
+          razorpayPaymentId: paymentId
         })
       });
       if (res.ok) {
-        toast.success("Session booked successfully! A meeting link has been generated.");
-        navigate('/dashboard'); // Direct to dashboard where appointments could be shown
+        toast.success("Session recorded successfully!");
+        // We no longer navigate away immediately so the user can see/print the receipt
       } else {
         const error = await res.json();
-        toast.error(error.message || "Failed to book slot.");
+        toast.error(error.message || "Failed to record booking.");
       }
     } catch (err) {
-      toast.error("Network error while booking.");
+      toast.error("Network error while recording booking.");
     }
   };
 
@@ -228,7 +231,10 @@ export default function TherapistProfile() {
          isOpen={showPayment} 
          onClose={() => setShowPayment(false)} 
          amount={therapist.hourlyRate || 1000} 
-         onConfirm={handleBookingConfirm} 
+         therapistName={therapist.name}
+         date={selectedDate}
+         timeSlot={selectedSlot}
+         onConfirm={(orderId, paymentId) => handleBookingConfirm(orderId, paymentId)} 
       />
     </div>
   );
