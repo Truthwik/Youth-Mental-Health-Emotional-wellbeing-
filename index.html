@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Svasthya Wellness & Health</title>
+    <meta name="description"
+        content="Meet the specialized team at Svasthya. Dedicated to your holistic wellbeing and health excellence.">
+
+    <!-- Google Fonts: Outfit for modern, rounded aesthetics -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Courgette&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Lucide Icons for social links -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <!-- Header Navigation -->
+    <nav>
+        <div class="container nav-container">
+            <a href="#" class="custom-logo">
+                <i data-lucide="heart-pulse" class="heart-icon"></i>
+                <div class="logo-text-wrapper">
+                    <div class="top-line"></div>
+                    <span class="logo-text">svasthya</span>
+                </div>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Content -->
+    <header class="hero">
+        <div class="container animate">
+            <h1>Our Specialist Team</h1>
+            <p>At Svasthya, we believe in holistic wellness driven by expertise and empathy. Meet the visionaries
+                leading the journey.</p>
+        </div>
+    </header>
+
+    <!-- Team Section -->
+    <section class="section">
+        <div class="container">
+            <div class="team-grid">
+
+                <!-- Person 1 -->
+                <div class="team-card animate" style="animation-delay: 0.1s;">
+                    <div class="img-container">
+                        <img src="assets/team1.png" alt="Dr. Ananya Sharma">
+                    </div>
+                    <h3>Dr. Ananya Sharma</h3>
+                    <p style="color: #4CAF50; font-weight: 600; margin-bottom: 1rem;">CEO</p>
+                    <div class="team-info">
+                        <span class="experience">15+ Years Exp.</span>
+                        <span class="joined-year">Since 2020</span>
+                    </div>
+                </div>
+
+                <!-- Person 2 -->
+                <div class="team-card animate" style="animation-delay: 0.2s;">
+                    <div class="img-container">
+                        <img src="assets/team2.png" alt="Rohan Mehta">
+                    </div>
+                    <h3>Rohan Mehta</h3>
+                    <p style="color: #4CAF50; font-weight: 600; margin-bottom: 1rem;">Senior Therapist</p>
+                    <div class="team-info">
+                        <span class="experience">8+ Years Exp.</span>
+                        <span class="joined-year">Since 2021</span>
+                    </div>
+                </div>
+
+                <!-- Person 3 -->
+                <div class="team-card animate" style="animation-delay: 0.3s;">
+                    <div class="img-container">
+                        <img src="assets/team3.png" alt="Priya Iyer">
+                    </div>
+                    <h3>Priya Iyer</h3>
+                    <p style="color: #4CAF50; font-weight: 600; margin-bottom: 1rem;">Volunteer Lead</p>
+                    <div class="team-info">
+                        <span class="experience">10+ Years Exp.</span>
+                        <span class="joined-year">Since 2022</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer
+        style="background: #1B263B; border-top: 1px solid rgba(255,255,255,0.05); color: white; padding: 4rem 0; text-align: center;">
+        <div class="container">
+            <a href="#" class="custom-logo" style="margin-bottom: 2rem; display: inline-flex;">
+                <i data-lucide="heart-pulse" class="heart-icon"></i>
+                <div class="logo-text-wrapper">
+                    <div class="top-line"></div>
+                    <span class="logo-text">svasthya</span>
+                </div>
+            </a>
+            <p style="color: #90A4AE;">&copy; 2026 Svasthya Wellness Pvt Ltd. All Rights Reserved.</p>
+            <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1.5rem;">
+                <i data-lucide="instagram"></i>
+                <i data-lucide="twitter"></i>
+                <i data-lucide="linkedin"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize Icons -->
+    <script>
+        lucide.createIcons();
+
+        // Animated Entry
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.team-card').forEach(card => observer.observe(card));
+    </script>
+</body>
+
+</html>
