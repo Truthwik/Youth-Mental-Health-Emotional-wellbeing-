@@ -15,8 +15,9 @@ const data = [
 
 export default function WellbeingChart() {
   return (
-    <div className="w-full h-64 sm:h-80">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full h-full min-h-[300px] relative overflow-hidden">
+      <div className="absolute inset-0">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
         <AreaChart
           data={data}
           margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
@@ -71,6 +72,7 @@ export default function WellbeingChart() {
           />
         </AreaChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, ShieldCheck, Loader2, CheckCircle2, AlertCircle, Printer, Download, Calendar, Clock, User, Hash } from 'lucide-react';
 import { toast } from 'sonner';
 
-export default function PaymentModal({ isOpen, onClose, amount, onConfirm, description = "Therapist Session", therapistName, date, timeSlot }) {
+export default function PaymentModal({ 
+  isOpen, 
+  onClose, 
+  amount, 
+  onConfirm, 
+  description, 
+  therapistName, 
+  date, 
+  isFree,
+  timeSlot 
+}) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [receiptData, setReceiptData] = useState(null);
@@ -24,6 +34,12 @@ export default function PaymentModal({ isOpen, onClose, amount, onConfirm, descr
   };
 
   const handleRazorpayPayment = async () => {
+    if (amount === 0 || isFree) {
+      onConfirm('FREE', 'FREE'); // Skip Razorpay for free sessions
+      setSuccess(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
@@ -31,13 +47,13 @@ export default function PaymentModal({ isOpen, onClose, amount, onConfirm, descr
       const user = userStr ? JSON.parse(userStr) : {};
 
       // 1. Fetch Razorpay Key ID from Backend
-      const keyRes = await fetch('http://localhost:5000/api/payment/key', {
+      const keyRes = await fetch('/api/payment/key', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const { key } = await keyRes.json();
 
       // 2. Create Order on Backend
-      const orderRes = await fetch('http://localhost:5000/api/payment/order', {
+      const orderRes = await fetch('/api/payment/order', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -60,13 +76,13 @@ export default function PaymentModal({ isOpen, onClose, amount, onConfirm, descr
         handler: async (response) => {
           // 4. Verify Payment
           try {
-            const verifyRes = await fetch('http://localhost:5000/api/payment/verify', {
+            const verifyRes = await fetch('/api/payment/verify', {
               method: 'POST',
               headers: { 
                 'Content-Type': 'application/json', 
                 Authorization: `Bearer ${token}`
               },
-              body: JSON.stringify(response)
+              body: JSON.stringify({ orderId: orderData.id, paymentId: response.razorpay_payment_id, signature: response.razorpay_signature })
             });
 
             const verifyData = await verifyRes.json();
@@ -137,7 +153,7 @@ export default function PaymentModal({ isOpen, onClose, amount, onConfirm, descr
                      </div>
                      <div className="text-right">
                         <p className="text-sm font-bold text-gray-900 dark:text-white">{new Date().toLocaleDateString()}</p>
-                        <p className="text-xs text-gray-500">Invoice: INV-{receiptData?.razorpay_payment_id.slice(-6).toUpperCase()}</p>
+                        <p className="text-xs text-gray-500">Invoice: INV-{receiptData?.razorpay_payment_id ? receiptData.razorpay_payment_id.slice(-6).toUpperCase() : '---'}</p>
                      </div>
                   </div>
 
@@ -263,7 +279,7 @@ export default function PaymentModal({ isOpen, onClose, amount, onConfirm, descr
                   {loading ? (
                     <><Loader2 size={18} className="animate-spin" /> Preparing...</>
                   ) : (
-                    `Open Checkout Modal`
+                    isFree ? 'Confirm Free Session' : `Open Checkout Modal`
                   )}
                 </button>
                 <div className="flex items-center justify-center gap-4 mt-6 opacity-40">
