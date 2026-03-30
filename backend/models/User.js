@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: { type: String, enum: ['youth', 'mentor', 'therapist', 'admin'], default: 'youth' },
   onboardingComplete: { type: Boolean, default: false },
 }, baseOptions);
 
