@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { ShieldX, ShieldCheck, Activity, LineChart, Users, ArrowRight, HeartPulse, UserPlus, Info, Smartphone, EyeOff } from 'lucide-react';
 
 const FadeIn = ({ children, delay = 0, className = "" }) => (
@@ -15,6 +16,8 @@ const FadeIn = ({ children, delay = 0, className = "" }) => (
 );
 
 export default function Home() {
+  const { t } = useTranslation();
+
   return (
     <>
         {/* 2. HERO SECTION */}
@@ -27,20 +30,20 @@ export default function Home() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-3 w-3 bg-secondary-500"></span>
                   </span>
-                  A Safe Digital Space
+                  {t('hero.badge')}
                 </div>
                 <h1 className="text-5xl lg:text-6xl font-extrabold leading-tight mb-6">
-                  Youth Mental <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-secondary-500">Wellbeing</span>
+                  {t('hero.title_part1')} <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-secondary-500">{t('hero.title_wellbeing')}</span>
                 </h1>
                 <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-lg leading-relaxed">
-                  Helping adolescents access mental health support, connect with peer mentors, and find guidance without stigma. You are not alone.
+                  {t('hero.description')}
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <button className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-3.5 rounded-full font-semibold shadow-lg shadow-primary-500/30 transition-all transform hover:-translate-y-1 flex items-center gap-2">
-                    Get Support <ArrowRight size={18} />
+                    {t('hero.get_support')} <ArrowRight size={18} />
                   </button>
                   <button className="bg-white dark:bg-darkborder hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-white px-8 py-3.5 rounded-full font-semibold outline outline-1 outline-gray-200 dark:outline-gray-600 shadow-sm transition-all transform hover:-translate-y-1">
-                    Become a Volunteer
+                    {t('hero.become_volunteer')}
                   </button>
                 </div>
               </FadeIn>
@@ -57,7 +60,7 @@ export default function Home() {
         <section id="why-it-matters" className="py-24 bg-white dark:bg-darkcard border-t border-gray-100 dark:border-darkborder/50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <FadeIn className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">Why This Matters</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('navbar.why_it_matters', 'Why This Matters')}</h2>
               <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
                 Young people today face mounting emotional stress from academic pressure, social expectations, and family dynamics. 
                 Mental health stigma continues to be the biggest barrier. Many who need help do not seek it, simply because the environment does not feel safe enough.
@@ -91,7 +94,7 @@ export default function Home() {
         <section className="py-24 bg-slate-50 dark:bg-darkbg">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <FadeIn>
-              <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">What Challenges Are We Addressing?</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">{t('home.challenges_title', 'What Challenges Are We Addressing?')}</h2>
             </FadeIn>
             
             <div className="grid md:grid-cols-2 gap-8">
@@ -120,8 +123,8 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <FadeIn>
               <div className="text-center mb-16">
-                <span className="text-secondary-600 dark:text-secondary-400 font-semibold tracking-wider text-sm uppercase mb-3 block">Our Solution</span>
-                <h2 className="text-3xl md:text-4xl font-bold">What This Platform Delivers</h2>
+                <span className="text-secondary-600 dark:text-secondary-400 font-semibold tracking-wider text-sm uppercase mb-3 block">{t('home.solution_tag', 'Our Solution')}</span>
+                <h2 className="text-3xl md:text-4xl font-bold">{t('home.solution_title', 'What This Platform Delivers')}</h2>
               </div>
             </FadeIn>
 
@@ -151,8 +154,8 @@ export default function Home() {
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <FadeIn className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold">How It Works</h2>
-              <p className="text-primary-200 mt-4 max-w-2xl mx-auto">A seamless journey to better mental health and supportive community.</p>
+              <h2 className="text-3xl md:text-4xl font-bold">{t('navbar.how_it_works')}</h2>
+              <p className="text-primary-200 mt-4 max-w-2xl mx-auto">{t('home.how_it_works_subtitle', 'A seamless journey to better mental health and supportive community.')}</p>
             </FadeIn>
 
             <div className="relative">
@@ -189,9 +192,9 @@ export default function Home() {
                 <img src="/mainpage_impact.webp" alt="Support Ecosystem" className="w-full h-auto rounded-3xl shadow-xl" />
               </FadeIn>
               <FadeIn delay={0.2}>
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">Creating a Support Ecosystem for Youth</h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('home.impact_title', 'Creating a Support Ecosystem for Youth')}</h2>
                 <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed mb-8">
-                  This platform is designed not just as an app, but as an ecosystem that connects youth, mentors, and organizations. By combining digital wellbeing tools, community support networks, and data insights, the platform helps create safer environments where young people can seek help early and build resilience.
+                  {t('home.impact_desc', 'This platform is designed not just as an app, but as an ecosystem that connects youth, mentors, and organizations. By combining digital wellbeing tools, community support networks, and data insights, the platform helps create safer environments where young people can seek help early and build resilience.')}
                 </p>
                 <div className="flex gap-4">
                   <div className="flex items-center gap-3">
@@ -223,10 +226,10 @@ export default function Home() {
           <div className="max-w-4xl mx-auto px-4">
             <FadeIn>
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900 dark:text-white">
-                Together We Can Build <br/> Safer Spaces for Youth
+                {t('home.cta_title', 'Together We Can Build Safer Spaces for Youth')}
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-10">
-                Join us in transforming how young people access mental health support.
+                {t('home.cta_subtitle', 'Join us in transforming how young people access mental health support.')}
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button className="bg-primary-600 hover:bg-primary-500 text-white px-8 py-3.5 rounded-full font-semibold outline-none focus:ring-4 ring-primary-500/30 transition-all">

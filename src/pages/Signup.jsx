@@ -34,7 +34,7 @@ export default function Signup() {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify({ name: data.name, role: data.role }));
-      window.location.href = '/dashboard';
+      navigate('/onboarding');
     } catch (err) {
       setError(err.message);
     } finally {

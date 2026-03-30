@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Gamepad2, BrainCircuit, Activity, HeartHandshake, FileQuestion, Sparkles, Quote, Sun, Cloud, CloudRain, CloudLightning, Thermometer } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Users, Gamepad2, BrainCircuit, Activity, HeartHandshake, FileQuestion, BookOpen, Quote, Sun, Cloud, CloudRain, CloudLightning, Thermometer } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import MilestoneTracker from '../components/MilestoneTracker';
 import AnalysisResult from '../components/AnalysisResult';
@@ -34,6 +35,7 @@ const ModuleCard = ({ title, description, icon, isBeta, onClick, delay }) => (
 );
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [milestones, setMilestones] = useState([]);
   const [analysis, setAnalysis] = useState(null);
@@ -61,6 +63,23 @@ export default function Dashboard() {
           description: "Your wellbeing journey continues today.",
         });
         sessionStorage.setItem('dashboard_loaded', 'true');
+      }
+
+      // Fetch fresh profile to get community tags from onboarding
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetch('http://localhost:5000/api/auth/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+          .then(r => r.ok ? r.json() : null)
+          .then(data => {
+            if (data) {
+              const merged = { ...JSON.parse(storedUser), ...data };
+              localStorage.setItem('user', JSON.stringify(merged));
+              setUser(merged);
+            }
+          })
+          .catch(() => {});
       }
     }
   }, [navigate]);
@@ -124,7 +143,7 @@ export default function Dashboard() {
       const token = localStorage.getItem('token');
       const [mRes, aRes] = await Promise.all([
         fetch('http://localhost:5000/api/milestones', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('http://localhost:5000/api/milestones/analysis', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch('http://localhost:5000/api/notes/analysis', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       
       const mData = await mRes.json();
@@ -152,13 +171,41 @@ export default function Dashboard() {
         >
           <div>
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
-              Welcome to your Safe Space, {user?.name?.split(' ')[0] || 'Friend'}.
+              {t('dashboard.welcome', { name: user?.name?.split(' ')[0] || 'Friend' })}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl text-lg">
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl text-lg mb-4">
               {user.role === 'youth' 
-                ? "This is your private dashboard. No judgment. No pressure. Explore at your own pace."
-                : `Thank you for supporting our community as a registered ${user.role}! Explore your tools below.`}
+                ? t('dashboard.subtitle_youth')
+                : t('dashboard.subtitle_support', { role: user.role })}
             </p>
+            {/* Community Tags */}
+            {user.communityTags?.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {user.communityTags.slice(0, 3).map(tag => {
+                  const labels = {
+                    academic_stress: { emoji: '📚', text: 'Academic Stress' },
+                    social_anxiety: { emoji: '💬', text: 'Social Confidence' },
+                    family_conflict: { emoji: '🏠', text: 'Family Support' },
+                    grief_loss: { emoji: '💗', text: 'Grief & Healing' },
+                    identity_crisis: { emoji: '🌈', text: 'Identity & Purpose' },
+                    substance_risk: { emoji: '🌿', text: 'Wellbeing & Recovery' },
+                    self_harm_risk: { emoji: '🆘', text: 'Crisis Support' },
+                    general_wellness: { emoji: '💚', text: 'General Wellness' },
+                  };
+                  const l = labels[tag] || { emoji: '💚', text: tag };
+                  return (
+                    <span key={tag} className="inline-flex items-center gap-1.5 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 px-3 py-1 rounded-full text-xs font-bold border border-primary-100 dark:border-primary-900/40">
+                      {l.emoji} {l.text}
+                    </span>
+                  );
+                })}
+                {user.isCrisisRisk && (
+                  <span className="inline-flex items-center gap-1.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-3 py-1 rounded-full text-xs font-bold border border-red-100 dark:border-red-900/40">
+                    🆘 Priority Support Active
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <div className="flex flex-col md:flex-row gap-6 items-center">
             <div className="hidden md:flex bg-primary-50 dark:bg-primary-900/20 p-4 rounded-full border-4 border-white dark:border-darkcard shadow-lg shrink-0">
@@ -167,7 +214,7 @@ export default function Dashboard() {
             {user.role === 'youth' && (
               <div className="bg-gray-50 dark:bg-darkbg px-6 py-4 rounded-3xl border border-gray-100 dark:border-darkborder shadow-inner w-full md:w-64">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-black uppercase tracking-widest text-gray-400">Wellbeing Level</span>
+                  <span className="text-xs font-black uppercase tracking-widest text-gray-400">{t('dashboard.wellbeing_level')}</span>
                   <span className="bg-primary-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Level {user.level || 1}</span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-gray-800 h-2 rounded-full overflow-hidden">
@@ -177,7 +224,7 @@ export default function Dashboard() {
                     className="bg-primary-500 h-full rounded-full shadow-[0_0_8px_rgba(var(--primary-500-rgb),0.5)]"
                   />
                 </div>
-                <p className="text-[10px] text-gray-400 mt-2 font-bold text-right">{(user.xp || 0) % 100} / 100 XP to next level</p>
+                <p className="text-[10px] text-gray-400 mt-2 font-bold text-right">{t('dashboard.next_level', { xp: (user.xp || 0) % 100 })}</p>
               </div>
             )}
           </div>
@@ -185,6 +232,7 @@ export default function Dashboard() {
 
         {/* Milestone Tracker & Analysis Section (Youth Only) */}
         {user.role === 'youth' ? (
+          <>
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
               <MilestoneTracker 
@@ -196,15 +244,15 @@ export default function Dashboard() {
               <div className="bg-white dark:bg-darkcard border border-gray-100 dark:border-darkborder rounded-[3.5rem] p-8 sm:p-12 shadow-sm h-full flex flex-col">
                 <div className="flex justify-between items-center mb-8">
                   <div>
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white italic">Wellbeing Evolution</h3>
-                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Mental Health Resilience Score</p>
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-white italic">{t('dashboard.evolution_title')}</h3>
+                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">{t('dashboard.evolution_subtitle')}</p>
                   </div>
                   <div className="flex gap-4">
                     <div className="flex items-center gap-2 text-[10px] font-bold text-primary-500">
-                      <div className="w-2 h-2 rounded-full bg-primary-500" /> Resilience
+                      <div className="w-2 h-2 rounded-full bg-primary-500" /> {t('dashboard.resilience')}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] font-bold text-purple-400">
-                      <div className="w-2 h-2 rounded-full bg-purple-400" /> Balance
+                      <div className="w-2 h-2 rounded-full bg-purple-400" /> {t('dashboard.balance')}
                     </div>
                   </div>
                 </div>
@@ -229,6 +277,13 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+          
+          {analysis && (
+            <div className="mt-8">
+              <AnalysisResult analysis={analysis} />
+            </div>
+          )}
+          </>
         ) : (
           <div className="bg-white dark:bg-darkcard p-8 sm:p-12 rounded-[3.5rem] border border-gray-100 dark:border-darkborder shadow-sm">
             <NGOAnalytics />
@@ -243,7 +298,7 @@ export default function Dashboard() {
           >
             <Quote className="absolute -top-4 -right-4 w-32 h-32 text-white/10 group-hover:rotate-12 transition-transform" />
             <div className="relative z-10">
-              <span className="bg-white/20 text-xs font-bold px-3 py-1 rounded-full mb-4 inline-block backdrop-blur-sm">Daily Inspiration</span>
+              <span className="bg-white/20 text-xs font-bold px-3 py-1 rounded-full mb-4 inline-block backdrop-blur-sm">{t('dashboard.daily_inspiration')}</span>
               <p className="text-xl font-medium leading-relaxed mb-4 italic">"{quote.text}"</p>
               <p className="text-sm text-primary-100 font-bold">— {quote.author}</p>
             </div>
@@ -257,7 +312,7 @@ export default function Dashboard() {
               {getWeatherIcon()}
             </div>
             <div>
-              <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-1 block">Environmental Wellbeing</span>
+              <span className="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-1 block">{t('dashboard.environmental_wellbeing')}</span>
               <p className="text-gray-900 dark:text-white font-bold leading-tight">
                 {getWeatherTip()}
               </p>
@@ -267,44 +322,51 @@ export default function Dashboard() {
 
         {/* Feature Grid */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 px-2">Your Wellbeing Tools</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 px-2">{t('dashboard.wellbeing_tools')}</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <ModuleCard
               delay={0.1}
               icon={<FileQuestion size={28} />}
-              title="Assessments"
-              description="Quick, stress-free questionnaires to help track your mood and identify feelings early on."
+              title={t('tools.assessments.title')}
+              description={t('tools.assessments.desc')}
               onClick={() => setModalData({ isOpen: true, title: 'In-Depth Assessments', description: 'Our comprehensive assessments go deeper into identifying patterns of anxiety and stress. This feature is entering security audits and will launch soon.', phase: 4 })}
             />
             <ModuleCard
               delay={0.2}
               icon={<Gamepad2 size={28} />}
-              title="Mini-Games & Exercises"
-              description="Interactive breathing exercises, visual grounding games, and anxiety-relief activities."
+              title={t('tools.games.title')}
+              description={t('tools.games.desc')}
               onClick={() => setModalData({ isOpen: true, title: 'Mindfulness Games', description: 'We are building interactive WebGL games that help lower heart rate and focus the mind through rhythmic play.', phase: 4 })}
             />
             <ModuleCard
               delay={0.3}
               icon={<HeartHandshake size={28} />}
-              title="Anonymous Community"
-              description="Share your struggles privately. Support others or get advice anonymously. Zero personal info required."
+              title={t('tools.community.title')}
+              description={t('tools.community.desc')}
               isBeta={true}
               onClick={() => setModalData({ isOpen: true, title: 'Encrypted Community', description: 'A safe, fully anonymous forum where empathy is the only currency. Launching for all verified students in Phase 3.', phase: 3 })}
             />
             <ModuleCard
               delay={0.4}
               icon={<Users size={28} />}
-              title="Peer Mentorship"
-              description="Connect with trained mentors and professional therapists to discuss specific challenges safely."
+              title={t('tools.mentorship.title')}
+              description={t('tools.mentorship.desc')}
               isBeta={true}
               onClick={() => setModalData({ isOpen: true, title: 'Certified Mentorship', description: 'Our mentorship matching system connects you with senior students and professional counselors for 1-on-1 support.', phase: 3 })}
             />
             <ModuleCard
               delay={0.5}
               icon={<BrainCircuit size={28} />}
-              title="Svasthya AI Companion"
-              description="Talk to our free, intelligent chatbot 24/7 for coping tips, grounding exercises, and mental health suggestions."
+              title={t('tools.chatbot.title')}
+              description={t('tools.chatbot.desc')}
               onClick={() => window.dispatchEvent(new CustomEvent('svasthya-open-chat'))}
+            />
+            <ModuleCard
+              delay={0.6}
+              icon={<BookOpen size={28} />}
+              title="📔 My Journal"
+              description="Write daily notes and let AI analyse your mood, suggest coping tips, and recommend movies, books, songs, and more."
+              onClick={() => navigate('/notes')}
             />
           </div>
         </div>
