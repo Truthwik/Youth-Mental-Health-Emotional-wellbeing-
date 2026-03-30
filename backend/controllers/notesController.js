@@ -52,6 +52,18 @@ Respond ONLY with a JSON object matching this schema exactly:
 
   const data = await response.json();
   if (!response.ok) {
+    if (response.status === 429) {
+      console.warn('AI Quota Exceeded (429). Using fallback defaults.');
+      return {
+        mood: 'Calm',
+        moodScore: 5,
+        moodEmoji: '💭',
+        categories: ['General'],
+        aiInsight: "I'm processing a lot of thoughts right now! Let's take a deep breath together. Your words are safe here.",
+        suggestions: ["Take 3 deep breaths", "Write one thing you're grateful for", "Listen to some calming music"],
+        recommendations: { movies: [], books: [], songs: [], youtube: [], podcasts: [] }
+      };
+    }
     throw new Error(data.error?.message || "Google API Error");
   }
 
@@ -196,6 +208,15 @@ Follow this exact JSON structure (raw JSON only, no markdown, no code fences):
 
     const data = await response.json();
     if (!response.ok) {
+        if (response.status === 429) {
+          return res.json({
+            summary: "I'm experiencing high traffic right now, but I want you to know that your progress is being recorded. Please check back in a few minutes for a deep-dive analysis of your journey!",
+            consistency: "Growing",
+            resilience: "Developing",
+            mindfulness: "Improving",
+            generatedAt: new Date()
+          });
+        }
         throw new Error(data.error?.message || "Google API Error");
     }
 

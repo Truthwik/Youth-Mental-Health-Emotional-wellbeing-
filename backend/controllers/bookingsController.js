@@ -37,7 +37,7 @@ export const createBooking = async (req, res) => {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ message: 'Not authorized' });
 
-    const { therapistId, date, timeSlot, amount } = req.body;
+    const { therapistId, date, timeSlot, amount, razorpayOrderId, razorpayPaymentId } = req.body;
 
     // Optional Check: verify slot isn't already taken
     const existing = await Appointment.findOne({ therapistId, date, timeSlot });
@@ -51,6 +51,8 @@ export const createBooking = async (req, res) => {
       date,
       timeSlot,
       amount,
+      razorpayOrderId,
+      razorpayPaymentId,
       status: 'Scheduled'
     });
 
