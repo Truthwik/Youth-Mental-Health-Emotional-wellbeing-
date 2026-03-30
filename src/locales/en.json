@@ -1,0 +1,114 @@
+{
+  "navbar": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "login": "Login",
+    "signup": "Signup",
+    "logout": "Logout",
+    "why_it_matters": "Why It Matters",
+    "solutions": "Solutions",
+    "how_it_works": "How It Works",
+    "impact": "Impact",
+    "logged_in_as": "Logged in as"
+  },
+  "hero": {
+    "badge": "A Safe Digital Space",
+    "title_part1": "Youth Mental",
+    "title_wellbeing": "Wellbeing",
+    "description": "Helping adolescents access mental health support, connect with peer mentors, and find guidance without stigma. You are not alone.",
+    "get_support": "Get Support",
+    "become_volunteer": "Become a Volunteer"
+  },
+  "dashboard": {
+    "welcome": "Welcome to your Safe Space, {{name}}.",
+    "subtitle_youth": "This is your private dashboard. No judgment. No pressure. Explore at your own pace.",
+    "subtitle_support": "Thank you for supporting our community as a registered {{role}}! Explore your tools below.",
+    "wellbeing_level": "Wellbeing Level",
+    "next_level": "{{xp}} / 100 XP to next level",
+    "evolution_title": "Wellbeing Evolution",
+    "evolution_subtitle": "Mental Health Resilience Score",
+    "resilience": "Resilience",
+    "balance": "Balance",
+    "peer_comparison": "\"You are doing better than 85% of peers in resilience!\"",
+    "daily_inspiration": "Daily Inspiration",
+    "environmental_wellbeing": "Environmental Wellbeing",
+    "wellbeing_tools": "Your Wellbeing Tools"
+  },
+  "tools": {
+    "assessments": {
+      "title": "Assessments",
+      "desc": "Quick, stress-free questionnaires to help track your mood and identify feelings early on."
+    },
+    "games": {
+      "title": "Mini-Games & Exercises",
+      "desc": "Interactive breathing exercises, visual grounding games, and anxiety-relief activities."
+    },
+    "community": {
+      "title": "Anonymous Community",
+      "desc": "Share your struggles privately. Support others or get advice anonymously. Zero personal info required."
+    },
+    "mentorship": {
+      "title": "Peer Mentorship",
+      "desc": "Connect with trained mentors and professional therapists to discuss specific challenges safely."
+    },
+    "chatbot": {
+      "title": "Svasthya AI Companion",
+      "desc": "Talk to our free, intelligent chatbot 24/7 for coping tips, grounding exercises, and mental health suggestions.",
+      "greeting": "Hi there! I am your Svasthya Companion. I can provide grounding exercises, stress-relief tips, or just be here to chat. How are you feeling right now?"
+    }
+  },
+  "home": {
+    "challenges_title": "What Challenges Are We Addressing?",
+    "solution_tag": "Our Solution",
+    "solution_title": "What This Platform Delivers",
+    "how_it_works_subtitle": "A seamless journey to better mental health and supportive community.",
+    "impact_title": "Creating a Support Ecosystem for Youth",
+    "impact_desc": "This platform is designed not just as an app, but as an ecosystem that connects youth, mentors, and organizations. By combining digital wellbeing tools, community support networks, and data insights, the platform helps create safer environments where young people can seek help early and build resilience.",
+    "cta_title": "Together We Can Build Safer Spaces for Youth",
+    "cta_subtitle": "Join us in transforming how young people access mental health support."
+  },
+  "footer": {
+    "tagline": "A digitally safe sanctuary for adolescent mental wellbeing, connecting youth to the resilience they need.",
+    "platform": "Platform",
+    "about": "About Us",
+    "resources": "Resources",
+    "features": "Features",
+    "community": "Community",
+    "ngos": "Partner NGOs",
+    "mentor": "Become a Mentor",
+    "forums": "Support Forums",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "contact": "Contact",
+    "copyright": "Svasthya Digital Wellbeing Platform. All rights reserved."
+  },
+  "auth": {
+    "welcome_back": "Welcome Back",
+    "login_subtitle": "Log in to continue your journey.",
+    "email_label": "Email Address",
+    "password_label": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot password?",
+    "login_button": "Log In",
+    "authenticating": "Authenticating...",
+    "no_account": "Don't have an account?",
+    "register": "Register for access",
+    "create_account": "Create Account",
+    "signup_subtitle": "Join our community for a safer wellbeing journey.",
+    "full_name": "Full Name",
+    "already_account": "Already have an account?",
+    "login_link": "Log in here"
+  },
+  "milestones": {
+    "title": "Your Wellness Journey",
+    "subtitle": "Complete milestones to unlock your mental health analysis.",
+    "breathing": "Breathing Exercise",
+    "meditation": "Mindful Meditation",
+    "talking_to_friend": "Talk to a Friend",
+    "mood_check": "Daily Mood Check",
+    "anxiety_test": "Anxiety Assessment",
+    "completed": "Completed",
+    "start_activity": "Click to start activity"
+  }
+}
