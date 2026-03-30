@@ -32,12 +32,24 @@ export const getBookings = async (req, res) => {
   }
 };
 
+export const getAvailability = async (req, res) => {
+  try {
+    const { therapistId } = req.query;
+    if (!therapistId) return res.status(400).json({ message: 'Therapist ID required' });
+
+    const reserved = await Appointment.find({ therapistId }, 'date timeSlot');
+    res.json(reserved);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 export const createBooking = async (req, res) => {
   try {
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ message: 'Not authorized' });
 
-    const { therapistId, date, timeSlot, amount, razorpayOrderId, razorpayPaymentId } = req.body;
+    const { therapistId, date, timeSlot, amount, razorpayOrderId, razorpayPaymentId, isFree } = req.body;
 
     // Optional Check: verify slot isn't already taken
     const existing = await Appointment.findOne({ therapistId, date, timeSlot });
@@ -45,14 +57,20 @@ export const createBooking = async (req, res) => {
        return res.status(400).json({ message: 'Slot already booked' });
     }
 
+    // Validation: if it's not a free session, we need payment details
+    if (!isFree && (!razorpayPaymentId || !razorpayOrderId)) {
+      return res.status(400).json({ message: 'Payment details required for paid sessions' });
+    }
+
     const appointment = await Appointment.create({
       userId,
       therapistId,
       date,
       timeSlot,
-      amount,
-      razorpayOrderId,
-      razorpayPaymentId,
+      amount: isFree ? 0 : amount,
+      razorpayOrderId: isFree ? 'FREE' : razorpayOrderId,
+      razorpayPaymentId: isFree ? 'FREE' : razorpayPaymentId,
+      isFree,
       status: 'Scheduled'
     });
 

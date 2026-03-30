@@ -7,7 +7,10 @@ const generateToken = (id) => {
 
 export const registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, licenseNumber, specialization, adminCode } = req.body;
+    const { name, email, password, adminCode, licenseNumber, specialization } = req.body;
+    const role = req.body.role ? req.body.role.toLowerCase().trim() : 'youth';
+
+    console.log(`[Registration] Name: ${name}, Role: ${role}`);
 
     // Reject therapist if licenseNumber is missing
     if (role === 'therapist' && !licenseNumber) {
@@ -84,25 +87,53 @@ export const loginUser = async (req, res) => {
 
 export const getMe = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1] || req.body.token || req.query.token;
     if (!token) return res.status(401).json({ message: 'Not authorized' });
 
-    const jwt_module = await import('jsonwebtoken');
-    const decoded = jwt_module.default.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
     const user = await User.findById(decoded.id).select('-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    res.json({
-      name: user.name,
-      role: user.role,
-      onboardingComplete: user.onboardingComplete,
-      primaryCategory: user.primaryCategory,
-      communityTags: user.communityTags,
-      isCrisisRisk: user.isCrisisRisk,
-      xp: user.xp,
-      level: user.level,
-    });
+    res.json(user);
   } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Invalid or expired token. Please log in again.' });
+    }
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token || token === 'undefined') return res.status(401).json({ message: 'Not authorized' });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+    const user = await User.findById(decoded.id);
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const { name, specialization, clinicalSpecialization, bio, hourlyRate, availableDays } = req.body;
+
+    if (name) user.name = name;
+    
+    // Role-specific updates
+    if (user.role === 'mentor' || user.role === 'therapist') {
+      if (specialization) user.specialization = specialization;
+    }
+    
+    if (user.role === 'therapist') {
+      if (clinicalSpecialization) user.clinicalSpecialization = clinicalSpecialization;
+      if (hourlyRate) user.hourlyRate = hourlyRate;
+      if (availableDays) user.availableDays = availableDays;
+    }
+
+    const updatedUser = await user.save();
+    res.json(updatedUser);
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: 'Invalid session. Please log in again.' });
+    }
     res.status(500).json({ message: error.message });
   }
 };
