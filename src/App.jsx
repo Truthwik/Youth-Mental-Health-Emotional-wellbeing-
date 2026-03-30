@@ -13,6 +13,7 @@ import Onboarding from './pages/Onboarding';
 import Notes from './pages/Notes';
 import Community from './pages/Community';
 import TherapistProfile from './pages/TherapistProfile';
+import Donate from './pages/Donate';
 import Logo from './components/Logo';
 import Chatbot from './components/Chatbot';
 import LanguageSelector from './components/LanguageSelector';
@@ -22,6 +23,7 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [wellbeingMenuOpen, setWellbeingMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check theme
@@ -67,14 +69,40 @@ export default function App() {
             <Logo />
           </Link>
           
-          <nav className="hidden md:flex gap-8 text-sm font-medium text-gray-600 dark:text-gray-300">
-            <Link to="/#why-it-matters" className="hover:text-primary-500 transition-colors">{t('navbar.why_it_matters', 'Why It Matters')}</Link>
-            <Link to="/#solutions" className="hover:text-primary-500 transition-colors">{t('navbar.solutions', 'Solutions')}</Link>
-            <Link to="/#how-it-works" className="hover:text-primary-500 transition-colors">{t('navbar.how_it_works', 'How It Works')}</Link>
-            <Link to="/#impact" className="hover:text-primary-500 transition-colors">{t('navbar.impact', 'Impact')}</Link>
-            {user && <Link to="/dashboard" className="text-primary-600 dark:text-primary-400 font-bold hover:text-primary-500 transition-colors">{t('navbar.dashboard')}</Link>}
-            {user && <Link to="/notes" className="text-gray-600 dark:text-gray-300 hover:text-primary-500 transition-colors">📔 Journal</Link>}
-            {user && <Link to="/community" className="text-gray-600 dark:text-gray-300 hover:text-primary-500 transition-colors">🌍 Community</Link>}
+          <nav className="hidden md:flex gap-6 lg:gap-8 text-sm font-medium text-gray-500 dark:text-gray-400">
+            <Link to="/#why-it-matters" className="hover:text-primary-500 transition-colors">About</Link>
+            <Link to="/#solutions" className="hover:text-primary-500 transition-colors">Solutions</Link>
+            <Link to="/#impact" className="hover:text-primary-500 transition-colors">Impact</Link>
+            
+            {user && (
+              <div className="relative" onMouseEnter={() => setWellbeingMenuOpen(true)} onMouseLeave={() => setWellbeingMenuOpen(false)}>
+                <button className="flex items-center gap-1.5 text-primary-600 dark:text-primary-400 font-bold hover:opacity-80 transition-opacity">
+                  My Journey <ChevronDown size={14} className={`transition-transform ${wellbeingMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <AnimatePresence>
+                  {wellbeingMenuOpen && (
+                    <motion.div 
+                       initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0, y:10}}
+                       className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-darkcard border border-gray-100 dark:border-darkborder rounded-2xl shadow-xl p-2 z-[100]"
+                    >
+                       <Link to="/dashboard" className="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-darkbg rounded-xl transition-colors text-gray-700 dark:text-gray-200">
+                          <HeartPulse size={16} className="text-primary-500" /> Dashboard
+                       </Link>
+                       <Link to="/notes" className="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-darkbg rounded-xl transition-colors text-gray-700 dark:text-gray-200">
+                          <span className="text-base">📔</span> Journal
+                       </Link>
+                       <Link to="/community" className="flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-darkbg rounded-xl transition-colors text-gray-700 dark:text-gray-200">
+                          <span className="text-base">🌍</span> Community
+                       </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            <Link to="/donate" className="text-primary-600 dark:text-primary-400 font-black hover:text-primary-500 transition-colors flex items-center gap-1.5 py-1 px-3 bg-primary-50 dark:bg-primary-900/20 rounded-full border border-primary-100 dark:border-primary-800/30">
+               <HeartPulse size={14} fill="currentColor" /> Support Us
+            </Link>
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-4">
@@ -151,6 +179,7 @@ export default function App() {
           <Route path="/notes" element={<Notes />} />
           <Route path="/community" element={<Community />} />
           <Route path="/therapists/:id" element={<TherapistProfile />} />
+          <Route path="/donate" element={<Donate />} />
           <Route path="/milestone/:type" element={<MilestoneActivity />} />
         </Routes>
       </main>

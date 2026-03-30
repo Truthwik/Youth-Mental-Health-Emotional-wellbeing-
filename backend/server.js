@@ -9,6 +9,7 @@ import onboardingRoutes from './routes/onboarding.js';
 import notesRoutes from './routes/notes.js';
 import communityRoutes from './routes/community.js';
 import bookingsRoutes from './routes/bookings.js';
+import paymentRoutes from './routes/payment.js';
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/bookings', bookingsRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
