@@ -53,6 +53,10 @@ router.post('/', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 429) {
+         // Free tier rate limit hit!
+         return res.json({ text: "I'm experiencing a high volume of love and traffic right now! 💛 Can you please give me a moment to breathe before messaging again?" });
+      }
       throw new Error(data.error?.message || "Google API Error");
     }
 
@@ -61,7 +65,11 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error("DIRECT FETCH ERROR:", error.message);
-    res.status(500).json({ error: error.message });
+    if (error.message?.includes('quota') || error.message?.includes('429')) {
+      return res.json({ text: "I'm experiencing a high volume of love and traffic right now! 💛 Can you please give me a moment to breathe before messaging again?" });
+    }
+    // Return graceful fallback rather than 500
+    res.json({ text: "I'm sorry, I'm finding it hard to process that right now. Could we pause for a moment?" });
   }
 
 })
