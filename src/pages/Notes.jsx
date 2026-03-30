@@ -102,7 +102,7 @@ export default function Notes() {
     if (!polling) return;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/notes/${polling}`, {
+        const res = await fetch(`/api/notes/${polling}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -119,7 +119,7 @@ export default function Notes() {
 
   const fetchNotes = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/notes', {
+      const res = await fetch('/api/notes', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -131,7 +131,7 @@ export default function Notes() {
     if (!content.trim()) return;
     setSaving(true);
     try {
-      const res = await fetch('http://localhost:5000/api/notes', {
+      const res = await fetch('/api/notes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ title, content })
@@ -148,7 +148,7 @@ export default function Notes() {
   };
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:5000/api/notes/${id}`, {
+    await fetch(`/api/notes/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
     });

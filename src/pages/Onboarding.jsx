@@ -207,6 +207,29 @@ const THERAPIST_QUESTIONS = [
   },
 ];
 
+const ADMIN_QUESTIONS = [
+  {
+    id: 'q1',
+    type: 'single',
+    question: "What is your primary administrative focus?",
+    subtitle: "This helps us tailor your management metrics.",
+    options: [
+      { label: "🏥 Clinical Oversight & Safety", value: "clinical_oversight" },
+      { label: "🤝 Community & Mentor Management", value: "community_management" },
+      { label: "📈 Platform Growth & Operations", value: "growth_ops" },
+    ],
+  },
+  {
+    id: 'q2',
+    type: 'single',
+    question: "Confirm your access level for Mission Control.",
+    subtitle: "Acknowledgment of administrative responsibility.",
+    options: [
+      { label: "✅ I confirm my role as System Admin", value: "confirmed" },
+    ],
+  },
+];
+
 const COMMUNITY_LABELS = {
   academic_stress: { label: "Academic Stress Community", color: "bg-blue-100 text-blue-700", emoji: "📚" },
   social_anxiety: { label: "Social Confidence Community", color: "bg-purple-100 text-purple-700", emoji: "💬" },
@@ -289,6 +312,7 @@ export default function Onboarding() {
   const questions =
     role === 'mentor' ? MENTOR_QUESTIONS :
     role === 'therapist' ? THERAPIST_QUESTIONS :
+    role === 'admin' ? ADMIN_QUESTIONS :
     YOUTH_QUESTIONS;
 
   const [step, setStep] = useState(0); // 0 = intro, 1..N = questions, N+1 = result
@@ -322,7 +346,7 @@ export default function Onboarding() {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/onboarding', {
+      const res = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ answers }),
@@ -401,7 +425,9 @@ export default function Onboarding() {
                   ? "We have a few quick questions to understand what you're going through and connect you to the right community and support. This will take about 2 minutes."
                   : role === 'mentor'
                   ? "We'd love to understand your journey so we can match you with the youth who'll benefit most from your experience."
-                  : "Tell us about your clinical background so we can connect you with youth who need your expertise."}
+                  : role === 'therapist'
+                  ? "Tell us about your clinical background so we can connect you with youth who need your expertise."
+                  : "Welcome to the Svasthya Management Console. Let's set up your administrative profile to get you started."}
               </p>
               <div className="flex flex-wrap justify-center gap-3 text-sm text-gray-500 mb-8">
                 <span className="flex items-center gap-1.5 bg-gray-50 dark:bg-darkbg px-4 py-2 rounded-full border border-gray-100 dark:border-darkborder">🔒 Completely private</span>

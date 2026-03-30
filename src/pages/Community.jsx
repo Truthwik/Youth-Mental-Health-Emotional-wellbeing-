@@ -49,7 +49,7 @@ export default function Community() {
 
   const fetchTherapists = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/community/therapists', {
+      const res = await fetch('/api/community/therapists', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -60,11 +60,11 @@ export default function Community() {
 
   const fetchPosts = async (groupId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/community/groups/${groupId}/posts`, {
+      const res = await fetch(`/api/community/groups/${groupId}/posts`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
-      setPosts(data.reverse()); // Show older at top to bottom (like chat)
+      setPosts(data.reverse());
     } catch (err) { console.error('Failed to fetch posts', err); }
   };
 
@@ -73,7 +73,7 @@ export default function Community() {
     if (!newPost.trim() || !selectedGroup) return;
     setPosting(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/community/groups/${selectedGroup._id}/posts`, {
+      const res = await fetch(`/api/community/groups/${selectedGroup._id}/posts`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

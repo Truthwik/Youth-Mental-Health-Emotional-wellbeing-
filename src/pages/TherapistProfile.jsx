@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Star, ShieldCheck, Clock, Users, ArrowRight, Video, FileText, CheckCircle2 } from 'lucide-react';
 import PaymentModal from '../components/PaymentModal';
 import { toast } from 'sonner';
@@ -10,35 +10,57 @@ export default function TherapistProfile() {
   const navigate = useNavigate();
   const [therapist, setTherapist] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reservedSlots, setReservedSlots] = useState([]);
   
   // Booking state
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('');
   const [showPayment, setShowPayment] = useState(false);
+  const [isFree, setIsFree] = useState(false);
 
   // Helper arrays
-  const nextDates = Array.from({length: 5}, (_, i) => {
+  const nextDates = Array.from({length: 6}, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() + i + 1); // start from tomorrow
     return d;
   });
 
   const generateSlots = () => {
-    return ['09:00', '10:00', '11:00', '13:00', '15:00', '16:00', '17:00'];
+    return ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+  };
+
+  const fetchReserved = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/bookings/availability?therapistId=${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) setReservedSlots(await res.json());
+    } catch (err) {
+      console.error("Failed to fetch availability:", err);
+    }
   };
 
   useEffect(() => {
-    const fetchTherapist = async () => {
+    const fetchTherapistData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:5000/api/community/therapists/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (res.ok) {
-          setTherapist(await res.json());
+        const [tRes, bRes] = await Promise.all([
+          fetch(`/api/community/therapists/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`/api/bookings`, { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+
+        if (tRes.ok) {
+          setTherapist(await tRes.json());
+          fetchReserved();
         } else {
           toast.error("Therapist not found.");
           navigate('/community');
+        }
+
+        if (bRes.ok) {
+          const bookings = await bRes.json();
+          setIsFree(bookings.length === 0);
         }
       } catch (err) {
         console.error(err);
@@ -46,15 +68,17 @@ export default function TherapistProfile() {
         setLoading(false);
       }
     };
-    fetchTherapist();
+    fetchTherapistData();
+
+    // REAL-TIME AVAILABILITY (15s Poll)
+    const interval = setInterval(fetchReserved, 15000);
+    return () => clearInterval(interval);
   }, [id, navigate]);
 
   const handleBookingConfirm = async (orderId, paymentId) => {
-    // We don't call setShowPayment(false) here because the modal shows the receipt now.
-    // The modal will stay open until user clicks "Done" or closes it manually.
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/bookings', {
+      const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -64,14 +88,14 @@ export default function TherapistProfile() {
           therapistId: therapist._id,
           date: selectedDate,
           timeSlot: selectedSlot,
-          amount: therapist.hourlyRate || 1000,
+          amount: isFree ? 0 : (therapist.hourlyRate || 1000),
           razorpayOrderId: orderId,
-          razorpayPaymentId: paymentId
+          razorpayPaymentId: paymentId,
+          isFree: isFree
         })
       });
       if (res.ok) {
-        toast.success("Session recorded successfully!");
-        // We no longer navigate away immediately so the user can see/print the receipt
+        toast.success(isFree ? "Free session booked successfully!" : "Session recorded successfully!");
       } else {
         const error = await res.json();
         toast.error(error.message || "Failed to record booking.");
@@ -188,19 +212,26 @@ export default function TherapistProfile() {
                   <motion.div initial={{opacity:0, height:0}} animate={{opacity:1, height:'auto'}} className="mb-8">
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">2. Select Time (IST)</p>
                     <div className="grid grid-cols-3 gap-2">
-                      {generateSlots().map(slot => (
-                        <button
-                          key={slot}
-                          onClick={() => setSelectedSlot(slot)}
-                          className={`py-2 rounded-xl text-sm font-bold border-2 transition-all ${
-                            selectedSlot === slot 
-                             ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                             : 'border-gray-100 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300'
-                          }`}
-                        >
-                          {slot}
-                        </button>
-                      ))}
+                      {generateSlots().map(slot => {
+                        const isReserved = reservedSlots.some(r => r.date === selectedDate && r.timeSlot === slot);
+                        return (
+                          <button
+                            key={slot}
+                            onClick={() => !isReserved && setSelectedSlot(slot)}
+                            disabled={isReserved}
+                            className={`py-2 rounded-xl text-sm font-bold border-2 transition-all relative overflow-hidden ${
+                              isReserved 
+                               ? 'bg-gray-100 dark:bg-gray-800 border-gray-100 dark:border-gray-800 text-gray-400 cursor-not-allowed opacity-60'
+                               : selectedSlot === slot 
+                                 ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                                 : 'border-gray-100 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-300'
+                            }`}
+                          >
+                            {slot}
+                            {isReserved && <span className="absolute inset-0 flex items-center justify-center bg-gray-500/10 text-[8px] uppercase tracking-tighter mt-4 font-black">Reserved</span>}
+                          </button>
+                        );
+                      })}
                     </div>
                   </motion.div>
                 )}
@@ -210,8 +241,14 @@ export default function TherapistProfile() {
               
               <div className="flex items-end justify-between mb-4">
                  <div>
-                   <p className="text-xs text-gray-500 font-bold uppercase mb-1">Session Cost</p>
-                   <p className="text-2xl font-black text-gray-900 dark:text-white">₹{therapist.hourlyRate || 1000}</p>
+                   <p className="text-xs text-gray-500 font-bold uppercase mb-1">{isFree ? 'Promotional Offer' : 'Session Cost'}</p>
+                   <div className="flex items-baseline gap-2">
+                     <p className="text-2xl font-black text-gray-900 dark:text-white">
+                       {isFree ? 'FREE' : `₹${therapist.hourlyRate || 1000}`}
+                     </p>
+                     {isFree && <p className="text-xs text-gray-400 line-through font-bold">₹{therapist.hourlyRate || 1000}</p>}
+                   </div>
+                   {isFree && <p className="text-[10px] text-green-500 font-bold mt-1 uppercase tracking-tighter">✨ Your first session is on us!</p>}
                  </div>
               </div>
 
@@ -220,7 +257,7 @@ export default function TherapistProfile() {
                 disabled={!selectedDate || !selectedSlot}
                 className="w-full bg-primary-600 hover:bg-primary-500 disabled:opacity-50 disabled:bg-gray-400 text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary-500/20 transition-all flex justify-center items-center gap-2"
               >
-                Continue to Payment <ArrowRight size={18} />
+                {isFree ? 'Claim Free Session' : 'Continue to Payment'} <ArrowRight size={18} />
               </button>
             </motion.div>
           </div>
@@ -230,10 +267,11 @@ export default function TherapistProfile() {
       <PaymentModal 
          isOpen={showPayment} 
          onClose={() => setShowPayment(false)} 
-         amount={therapist.hourlyRate || 1000} 
+         amount={isFree ? 0 : (therapist.hourlyRate || 1000)} 
          therapistName={therapist.name}
          date={selectedDate}
          timeSlot={selectedSlot}
+         isFree={isFree}
          onConfirm={(orderId, paymentId) => handleBookingConfirm(orderId, paymentId)} 
       />
     </div>

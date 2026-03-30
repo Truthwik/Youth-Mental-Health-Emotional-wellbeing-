@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HeartPulse, Heart, ShieldCheck, Sparkles, Plus, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
 import PaymentModal from '../components/PaymentModal';
 
 export default function Donate() {
@@ -131,9 +132,33 @@ export default function Donate() {
          onClose={() => setShowPayment(false)} 
          amount={selectedAmount} 
          description="Svasthya Platform Donation"
-         onConfirm={(orderId, paymentId) => {
-            console.log("Donation verified:", paymentId);
-            // In a real app we might update a global donation count here
+         onConfirm={async (orderId, paymentId) => {
+            try {
+               const token = localStorage.getItem('token');
+               const user = JSON.parse(localStorage.getItem('user') || '{}');
+               const response = await fetch('/api/donations/record', {
+                  method: 'POST',
+                  headers: { 
+                     'Content-Type': 'application/json',
+                     'Authorization': token ? `Bearer ${token}` : ''
+                  },
+                  body: JSON.stringify({
+                     amount: selectedAmount,
+                     razorpayOrderId: orderId,
+                     razorpayPaymentId: paymentId,
+                     donorName: user.name || 'Anonymous'
+                  })
+               });
+
+               if (!response.ok) throw new Error("Database record failed");
+
+               toast.success("Donation successful! Thank you for your support.");
+               setSelectedAmount(500); // Reset UI
+               setShowPayment(false);
+            } catch (err) {
+               console.error("Donation record failed:", err);
+               toast.error("Payment verified but record failed. Please contact support.");
+            }
          }} 
       />
     </div>

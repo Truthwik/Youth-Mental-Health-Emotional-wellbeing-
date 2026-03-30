@@ -18,7 +18,7 @@ export default function Signup() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -48,12 +48,16 @@ export default function Signup() {
   const renderRoleOption = (value, label, activeColorClass, baseColorClass) => {
     const isSelected = formData.role === value;
     return (
-      <label className={`border rounded-xl py-3 px-2 cursor-pointer transition-colors text-center flex flex-col items-center justify-center
-        ${isSelected ? activeColorClass : baseColorClass}`}
+      <div 
+        onClick={() => setFormData({ ...formData, role: value })}
+        className={`border rounded-xl py-3 px-2 cursor-pointer transition-all duration-200 text-center flex flex-col items-center justify-center
+          ${isSelected ? `${activeColorClass} scale-[1.02] shadow-sm` : `${baseColorClass} opacity-70 hover:opacity-100`}`}
       >
-        <input type="radio" name="role" value={value} className="hidden" checked={isSelected} onChange={handleChange} />
-        <span className="font-semibold text-sm">{label}</span>
-      </label>
+        <span className="font-semibold text-xs sm:text-sm">{label}</span>
+        {isSelected && (
+           <motion.div layoutId="selection-ring" className="w-1.5 h-1.5 bg-current rounded-full mt-1" />
+        )}
+      </div>
     );
   };
 
