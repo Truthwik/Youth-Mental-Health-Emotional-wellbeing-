@@ -1,6 +1,6 @@
 # 🌿 Svasthya: Your Journey, Your Wellbeing
 
-**Svasthya** is a premium, real-time mental health and growth platform specifically designed for youth empowerment. It combines AI-driven empathy with professional clinical oversight and peer-led community support.
+**Svasthya** is an AI-powered, full-stack mental health platform that provides youth with a safe space for reflective journaling, anonymous peer support groups, and direct connections to vetted therapists and mentors. Built as a comprehensive MERN application, it combines AI-driven empathy with professional clinical oversight to empower the next generation.
 
 ---
 
@@ -68,6 +68,24 @@ npm run dev
 ### 4. Configuration Notes
 - **Port:** The platform is strictly configured to run the backend on **Port 5050** to resolve Windows system conflicts.
 - **Vite Proxy:** The dev server automatically proxies all `/api` requests to the 5050 backend.
+
+---
+
+## 🌐 Production Deployment
+
+The project is configured to run as a single **Web Service** on platforms like Render.com. In production, the Express backend serves the built Vite frontend statically.
+
+**Build Command:**
+```bash
+npm install --include=dev && npm run build && cd backend && npm install
+```
+
+**Start Command:**
+```bash
+cd backend && node server.js
+```
+
+*(Ensure `NODE_ENV=production` is set in your host's environment variables).*
 
 ---
 
