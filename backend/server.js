@@ -24,6 +24,8 @@ import paymentRoutes from './routes/payment.js';
 import adminRoutes from './routes/admin.js';
 import donationRoutes from './routes/donations.js';
 import personalEventRoutes from './routes/personalEvents.js';
+import assessmentRoutes from './routes/assessments.js';
+import ratingsRoutes from './routes/ratings.js';
 
 const app = express();
 
@@ -43,6 +45,8 @@ app.use('/api/payment', paymentRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/donations', donationRoutes);
 app.use('/api/personal-events', personalEventRoutes);
+app.use('/api/assessments', assessmentRoutes);
+app.use('/api/ratings', ratingsRoutes);
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
