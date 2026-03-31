@@ -36,7 +36,7 @@ export default function Community() {
 
   const fetchGroups = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/community/groups', {
+      const res = await fetch('/api/community/groups', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
