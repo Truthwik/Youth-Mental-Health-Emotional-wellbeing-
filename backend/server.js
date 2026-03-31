@@ -2,6 +2,8 @@ import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // CRITICAL DEBUG LISTENERS
 process.on('uncaughtException', (err) => {
@@ -47,6 +49,16 @@ app.use('/api/donations', donationRoutes);
 app.use('/api/personal-events', personalEventRoutes);
 app.use('/api/assessments', assessmentRoutes);
 app.use('/api/ratings', ratingsRoutes);
+
+// Serve frontend static files in production
+if (process.env.NODE_ENV === 'production') {
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  app.use(express.static(path.join(__dirname, '../dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+  });
+}
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI)
