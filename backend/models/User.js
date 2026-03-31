@@ -51,25 +51,27 @@ const Youth = User.discriminator('youth', new mongoose.Schema({
 // ── Mentor ─────────────────────────────────────────────────────────────
 const Mentor = User.discriminator('mentor', new mongoose.Schema({
   specialization: { type: String },
-  // Categorization
   primaryCategory: { type: String, default: '' },
-  experienceCategory: { type: String, default: '' }, // lived experience tag
+  experienceCategory: { type: String, default: '' },
   supportAgeGroup: { type: String, default: '' },
   availabilityPerWeek: { type: String, default: '' },
   onboardingAnswers: { type: Object, default: {} },
+  ratingAvg: { type: Number, default: 0 },
+  ratingCount: { type: Number, default: 0 },
 }));
 
 // ── Therapist ──────────────────────────────────────────────────────────
 const Therapist = User.discriminator('therapist', new mongoose.Schema({
   licenseNumber: { type: String, required: true },
   specialization: { type: String },
-  // Categorization
   clinicalSpecialization: { type: String, default: '' },
   yearsExperience: { type: String, default: '' },
   crisisCertified: { type: Boolean, default: false },
   sessionLanguages: { type: [String], default: [] },
   onboardingAnswers: { type: Object, default: {} },
   rating: { type: Number, default: 4.8 },
+  ratingAvg: { type: Number, default: 0 },
+  ratingCount: { type: Number, default: 0 },
   badges: { type: [String], default: ['Verified Professional'] },
   hourlyRate: { type: Number, default: 1000 },
   availableDays: { type: [String], default: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'] }
