@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Routes, Route, Link } from 'react-router-dom';
-import { Moon, Sun, HeartPulse, User, LogOut, ChevronDown, ShieldCheck, BrainCircuit, Activity, Calendar as CalendarIcon } from 'lucide-react';
+import { Moon, Sun, HeartPulse, User, LogOut, ChevronDown, ShieldCheck, BrainCircuit, Activity, Calendar as CalendarIcon, Menu, X } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import Home from './pages/Home';
@@ -40,6 +40,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [wellbeingMenuOpen, setWellbeingMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check theme
@@ -205,8 +206,54 @@ export default function App() {
                 </Link>
               </>
             )}
+
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors ml-1" 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
+
+        {/* MOBILE DROPDOWN MENU */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-gray-100 dark:border-darkborder bg-white dark:bg-darkcard overflow-hidden"
+            >
+              <div className="px-4 py-4 space-y-5 flex flex-col">
+                <Link to="/#why-it-matters" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300 font-bold hover:text-primary-500">About Svasthya</Link>
+                <Link to="/#solutions" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300 font-bold hover:text-primary-500">Solutions</Link>
+                
+                {user && (
+                  <>
+                    <hr className="border-gray-100 dark:border-darkborder" />
+                    <span className="text-xs font-black text-gray-400 tracking-wider uppercase">Your Journey</span>
+                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300 font-bold hover:text-primary-500">Dashboard</Link>
+                    <Link to="/calendar" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300 font-bold hover:text-primary-500">Calendar & Events</Link>
+                    <Link to="/relax" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300 font-bold hover:text-primary-500">Zen Hub</Link>
+                    <Link to="/assessments" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 dark:text-gray-300 font-bold hover:text-primary-500">Assessments</Link>
+                  </>
+                )}
+                
+                <hr className="border-gray-100 dark:border-darkborder" />
+                <Link to="/donate" onClick={() => setMobileMenuOpen(false)} className="text-primary-600 font-bold">Support Our NGOs</Link>
+                
+                {!user && (
+                  <div className="pt-2 flex flex-col gap-3">
+                    <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="text-center font-bold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 py-3 rounded-xl border border-gray-200 dark:border-gray-700">Login</Link>
+                    <Link to="/signup" onClick={() => setMobileMenuOpen(false)} className="text-center font-bold text-white bg-primary-600 hover:bg-primary-500 py-3 rounded-xl shadow-lg shadow-primary-500/20">Get Support / Sign up</Link>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main className="flex-1">
