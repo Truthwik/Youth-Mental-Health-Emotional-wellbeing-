@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import MilestoneTracker from '../components/MilestoneTracker';
 import AnalysisResult from '../components/AnalysisResult';
 import WellbeingChart from '../components/WellbeingChart';
+import AssessmentHistory from '../components/AssessmentHistory';
 import DashboardCard from '../components/DashboardCard';
 import InfoModal from '../components/InfoModal';
 import { toast } from 'sonner';
@@ -15,6 +16,7 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [milestones, setMilestones] = useState([]);
   const [analysis, setAnalysis] = useState(null);
+  const [assessments, setAssessments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalData, setModalData] = useState({ isOpen: false, title: '', description: '', phase: 3 });
   const navigate = useNavigate();
@@ -41,13 +43,15 @@ export default function Dashboard() {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem('token');
-      const [mRes, aRes] = await Promise.all([
+      const [mRes, aRes, assRes] = await Promise.all([
         fetch('/api/milestones', { headers: { 'Authorization': `Bearer ${token}` } }),
-        fetch('/api/notes/analysis', { headers: { 'Authorization': `Bearer ${token}` } })
+        fetch('/api/notes/analysis', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/api/assessments', { headers: { 'Authorization': `Bearer ${token}` } })
       ]);
       
       if (mRes.ok) setMilestones(await mRes.json());
       if (aRes.ok) setAnalysis(await aRes.json());
+      if (assRes.ok) setAssessments(await assRes.json());
     } catch (err) {
       console.error("Failed to fetch dashboard data:", err);
     } finally {
@@ -105,22 +109,33 @@ export default function Dashboard() {
           </div>
           <div className="lg:col-span-3">
              <div className="bg-white dark:bg-darkcard border border-gray-100 dark:border-darkborder rounded-[3.5rem] p-10 shadow-sm h-full flex flex-col">
-                <div className="flex justify-between items-center mb-10">
-                   <div>
-                      <h3 className="text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2 italic">
-                         <Activity className="text-primary-500" /> Resilience Index
-                      </h3>
-                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mt-1">Growth over time</p>
-                   </div>
-                   <div className="flex gap-4">
-                      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-tighter text-primary-500">
-                         <Zap size={14} /> Peak State
-                      </div>
-                   </div>
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em] mb-1">Resilience Index</h3>
+                    <h4 className="text-xl font-black text-gray-900 dark:text-white italic">Wellbeing Journey</h4>
+                  </div>
+                  <button 
+                    onClick={() => navigate('/assessments')}
+                    className="px-4 py-2 bg-primary-50 dark:bg-primary-900/20 text-primary-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary-600 hover:text-white transition-all border border-primary-100 dark:border-primary-900/30"
+                  >
+                     New Assessment
+                  </button>
                 </div>
-                <div className="flex-1 h-[300px] min-h-[300px] w-full">
-                   <WellbeingChart />
+                
+                <div className="h-[300px] w-full">
+                  <WellbeingChart assessments={assessments} />
                 </div>
+
+                {/* Assessment History Timeline */}
+                {assessments.length > 0 && (
+                  <div className="mt-8 pt-8 border-t border-gray-100 dark:border-darkborder">
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">Recent Assessments</p>
+                      <button onClick={() => navigate('/assessments')} className="text-[9px] font-black text-primary-500 uppercase tracking-widest hover:underline">View All →</button>
+                    </div>
+                    <AssessmentHistory assessments={assessments} />
+                  </div>
+                )}
              </div>
           </div>
         </div>
@@ -176,11 +191,10 @@ export default function Dashboard() {
                 delay={0.4}
               />
               <DashboardCard 
-                title="In-Depth Discovery" 
-                description="Assessments" 
+                title="Psychometric Lab" 
+                description="GAD-7, PHQ-9, RQ-10, SCS-8" 
                 icon={<FileQuestion size={24} />} 
-                isBeta={true}
-                onClick={() => toast.info("Assessments are coming in Phase 3.")}
+                onClick={() => navigate('/assessments')}
                 delay={0.5}
               />
               <DashboardCard 

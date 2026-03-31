@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Calendar as CalendarIcon, Clock, Video, User, 
+  Calendar as CalendarIcon, Clock, Video, User, Star,
   Plus, Search, Filter, ChevronRight, LayoutGrid, List
 } from 'lucide-react';
 import CalendarHub from '../components/CalendarHub';
+import RatingModal from '../components/RatingModal';
 import { toast } from 'sonner';
 
 export default function CalendarModule() {
@@ -14,6 +15,7 @@ export default function CalendarModule() {
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [ratingTarget, setRatingTarget] = useState(null); // { toUserId, role, sessionId, name }
 
   // New Event Form State
   const [newEvent, setNewEvent] = useState({
@@ -27,15 +29,16 @@ export default function CalendarModule() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!storedUser.token) {
+    if (!token) {
        toast.error("Session expired. Please login again.");
        return;
     }
     setUser(storedUser);
-    fetchData(storedUser.token);
+    fetchData(token);
 
-    const interval = setInterval(() => fetchData(storedUser.token), 30000);
+    const interval = setInterval(() => fetchData(token), 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -161,7 +164,9 @@ export default function CalendarModule() {
                             <Clock size={16} />
                          </div>
                          <div>
-                            <p className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tighter truncate">{session.therapistId?.name || "Wellbeing Session"}</p>
+                            <p className="text-[10px] font-black text-gray-900 dark:text-white uppercase tracking-tighter truncate">
+                              {session.source === 'booking' ? (session.therapistId?.name || "Session") : session.title}
+                            </p>
                             <p className="text-[9px] text-gray-400 font-bold mt-0.5">{new Date(session.date).toLocaleDateString([], {month:'short', day:'numeric'})} • {session.timeSlot}</p>
                          </div>
                          <ChevronRight size={12} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 opacity-0 group-hover:opacity-100 transition-all" />
@@ -219,9 +224,19 @@ export default function CalendarModule() {
                                     </div>
                                  </div>
                                  {b.source === 'booking' ? (
-                                   <button className="px-6 py-2.5 bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder rounded-xl text-[10px] font-black uppercase tracking-widest text-primary-600 hover:bg-primary-600 hover:text-white transition-all">
-                                      Join Room
-                                   </button>
+                                    <div className="flex items-center gap-2">
+                                      <button className="px-4 py-2.5 bg-white dark:bg-darkcard border border-gray-200 dark:border-darkborder rounded-xl text-[10px] font-black uppercase tracking-widest text-primary-600 hover:bg-primary-600 hover:text-white transition-all">
+                                         Join Room
+                                      </button>
+                                      {new Date(b.date) < new Date() && (
+                                        <button
+                                          onClick={() => setRatingTarget({ toUserId: b.therapistId?._id, role: b.therapistId?.role || 'therapist', sessionId: b._id, name: b.therapistId?.name })}
+                                          className="px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl text-[10px] font-black uppercase tracking-widest text-amber-600 hover:bg-amber-500 hover:text-white transition-all flex items-center gap-1.5"
+                                        >
+                                          <Star size={11} /> Rate
+                                        </button>
+                                      )}
+                                    </div>
                                  ) : (
                                    <span className="text-[9px] font-black uppercase tracking-widest text-teal-600 px-3 py-1 bg-teal-50 dark:bg-teal-900/20 rounded-full">Manual Note</span>
                                  )}
@@ -235,6 +250,17 @@ export default function CalendarModule() {
            </div>
         </div>
       </div>
+
+      {ratingTarget && (
+        <RatingModal
+          isOpen={!!ratingTarget}
+          onClose={() => setRatingTarget(null)}
+          toUserId={ratingTarget.toUserId}
+          role={ratingTarget.role}
+          sessionId={ratingTarget.sessionId}
+          name={ratingTarget.name}
+        />
+      )}
 
       {/* Manual Entry Modal */}
       <AnimatePresence>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, Star, ShieldCheck, Clock, Users, ArrowRight, Video, FileText, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, ShieldCheck, Clock, Users, ArrowRight, Video, FileText, CheckCircle2 } from 'lucide-react';
 import PaymentModal from '../components/PaymentModal';
 import { toast } from 'sonner';
 
@@ -18,6 +18,13 @@ export default function TherapistProfile() {
   const [showPayment, setShowPayment] = useState(false);
   const [isFree, setIsFree] = useState(false);
 
+  // Reviews state
+  const [reviews, setReviews] = useState([]);
+  const [reviewStats, setReviewStats] = useState({ avg: 0, count: 0, distribution: [] });
+
+  // Calendar State
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
   // Helper arrays
   const nextDates = Array.from({length: 6}, (_, i) => {
     const d = new Date();
@@ -27,6 +34,44 @@ export default function TherapistProfile() {
 
   const generateSlots = () => {
     return ['09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+  };
+
+  const getDaysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year, month) => new Date(year, month, 1).getDay();
+
+  const renderCalendar = () => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const daysInMonth = getDaysInMonth(year, month);
+    const firstDay = getFirstDayOfMonth(year, month);
+    
+    const days = [];
+    for (let i = 0; i < firstDay; i++) {
+        days.push(<div key={`empty-${i}`} className="w-8 h-8"></div>);
+    }
+    const today = new Date(new Date().setHours(0,0,0,0));
+    for (let d = 1; d <= daysInMonth; d++) {
+        const dateObj = new Date(Date.UTC(year, month, d));
+        const dateStr = dateObj.toISOString().split('T')[0];
+        const isPast = dateObj < today;
+        const isSelected = selectedDate === dateStr;
+        
+        days.push(
+            <button
+                key={d}
+                disabled={isPast}
+                onClick={() => { setSelectedDate(dateStr); setSelectedSlot(''); }}
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                     isSelected ? 'bg-primary-600 text-white shadow-md shadow-primary-500/30' :
+                     isPast ? 'text-gray-300 dark:text-gray-700 cursor-not-allowed' :
+                     'text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-primary-900/30'
+                }`}
+            >
+                {d}
+            </button>
+        );
+    }
+    return days;
   };
 
   const fetchReserved = async () => {
@@ -53,6 +98,16 @@ export default function TherapistProfile() {
         if (tRes.ok) {
           setTherapist(await tRes.json());
           fetchReserved();
+          
+          try {
+            const revRes = await fetch(`/api/ratings/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+            if (revRes.ok) {
+              const revData = await revRes.json();
+              setReviews(revData.ratings || []);
+              setReviewStats({ avg: revData.avg, count: revData.count, distribution: revData.distribution || [] });
+            }
+          } catch(e) { console.error('Failed to load reviews', e); }
+
         } else {
           toast.error("Therapist not found.");
           navigate('/community');
@@ -172,6 +227,56 @@ export default function TherapistProfile() {
                    </div>
                 </div>
             </motion.div>
+            
+            {/* Reviews Section */}
+            <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.2}} className="bg-white dark:bg-darkcard rounded-3xl p-8 border border-gray-100 dark:border-darkborder shadow-sm mt-6">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2"><Star size={20} className="text-yellow-500" fill="currentColor" /> Patient Reviews & Feedback</h3>
+              
+              {reviewStats.count > 0 ? (
+                  <div className="flex flex-col sm:flex-row gap-8 items-center mb-8 bg-gray-50 dark:bg-darkbg p-6 rounded-2xl border border-gray-100 dark:border-darkborder transition-all">
+                      <div className="text-center shrink-0">
+                          <div className="text-4xl font-black text-gray-900 dark:text-white mb-1">{reviewStats.avg.toFixed(1)}</div>
+                          <div className="flex text-yellow-500 mb-1 justify-center">
+                              {[...Array(5)].map((_, i) => <Star key={i} size={14} fill={i < Math.floor(reviewStats.avg) ? 'currentColor' : 'none'} className={i < Math.floor(reviewStats.avg) ? '' : 'text-gray-300'} />)}
+                          </div>
+                          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{reviewStats.count} Reviews</div>
+                      </div>
+                      
+                      <div className="flex-1 space-y-2 w-full">
+                          {reviewStats.distribution?.map(dist => (
+                              <div key={dist.star} className="flex items-center gap-3 text-xs font-bold text-gray-500">
+                                  <span className="w-8 flex gap-1 items-center justify-end">{dist.star} <Star size={10} fill="currentColor" className="text-yellow-500"/></span>
+                                  <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
+                                      <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${(dist.count / reviewStats.count) * 100}%` }} />
+                                  </div>
+                                  <span className="w-6 text-right text-gray-400">{dist.count}</span>
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+              ) : (
+                  <div className="text-center py-8">
+                     <p className="text-sm text-gray-500 dark:text-gray-400 italic font-medium">No reviews submitted for this professional yet.</p>
+                  </div>
+              )}
+
+              <div className="space-y-4">
+                  {reviews.map((r, i) => (
+                      <div key={i} className="p-5 bg-gray-50 dark:bg-darkbg rounded-2xl border border-gray-100 dark:border-darkborder hover:border-gray-200 dark:hover:border-gray-700 transition-colors">
+                          <div className="flex justify-between items-start mb-3">
+                              <div>
+                                  <p className="text-sm font-bold text-gray-900 dark:text-white">{r.fromUserId?.name || 'Anonymous Patient'}</p>
+                                  <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{new Date(r.createdAt).toLocaleDateString('en-US', {month: 'short', day:'numeric', year:'numeric'})}</p>
+                              </div>
+                              <div className="flex text-yellow-500">
+                                  {[...Array(5)].map((_, idx) => <Star key={idx} size={12} fill={idx < r.stars ? 'currentColor' : 'none'} className={idx < r.stars ? '' : 'text-gray-300'} />)}
+                              </div>
+                          </div>
+                          {r.comment && <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium">{r.comment}</p>}
+                      </div>
+                  ))}
+              </div>
+            </motion.div>
           </div>
 
           {/* Booking Widget Column */}
@@ -182,27 +287,30 @@ export default function TherapistProfile() {
               {/* Date Selection */}
               <div className="mb-6">
                 <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">1. Select Date</p>
-                <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-                  {nextDates.map((d, i) => {
-                    const dateStr = d.toISOString().split('T')[0];
-                    const niceDay = d.toLocaleDateString('en-US', { weekday: 'short' });
-                    const niceDate = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
-                    const isSelected = selectedDate === dateStr;
-                    return (
-                      <button
-                        key={i}
-                        onClick={() => { setSelectedDate(dateStr); setSelectedSlot(''); }}
-                        className={`shrink-0 flex flex-col items-center justify-center w-16 h-20 rounded-2xl border-2 transition-all ${
-                          isSelected 
-                           ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 shadow-md shadow-primary-500/10' 
-                           : 'border-gray-100 dark:border-gray-800 hover:border-primary-300 dark:text-gray-300'
-                        }`}
-                      >
-                         <span className="text-xs font-medium opacity-70 mb-1">{niceDay}</span>
-                         <span className="font-bold">{niceDate.split(' ')[1]}</span>
-                      </button>
-                    )
-                  })}
+                <div className="bg-gray-50 dark:bg-darkbg p-5 rounded-3xl border border-gray-100 dark:border-darkborder transition-all">
+                  <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-200 dark:border-gray-800">
+                    <button 
+                      onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))} 
+                      className="p-1 text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <span className="font-bold text-sm text-gray-800 dark:text-white uppercase tracking-wider">
+                        {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </span>
+                    <button 
+                      onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))} 
+                      className="p-1 text-gray-400 hover:text-gray-800 dark:hover:text-white transition-colors"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1 text-center mb-3">
+                    {['Su','Mo','Tu','We','Th','Fr','Sa'].map(day => <div key={day} className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">{day}</div>)}
+                  </div>
+                  <div className="grid grid-cols-7 gap-2 place-items-center">
+                    {renderCalendar()}
+                  </div>
                 </div>
               </div>
 
