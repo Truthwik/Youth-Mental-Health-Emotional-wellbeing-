@@ -35,7 +35,7 @@ Specialized, role-aware portals for every member of the Svasthya journey:
 
 - **Frontend:** React 18, Vite, Tailwind CSS, Framer Motion (Animations), Recharts.
 - **Backend:** Node.js, Express, MongoDB + Mongoose (Discriminators for role management).
-- **AI Engine:** Google Gemini-1.5-Flash integration for empathetic journaling analysis.
+- **AI Engine:** Google Gemini-2.5-Flash integration for empathetic journaling analysis.
 - **Security:** JWT Authentication with role-based access control (RBAC).
 
 ---
