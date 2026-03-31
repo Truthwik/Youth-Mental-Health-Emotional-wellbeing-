@@ -20,6 +20,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import MindGames from './pages/MindGames';
 import Profile from './pages/Profile';
 import CalendarModule from './pages/CalendarModule';
+import AssessmentPage from './pages/AssessmentPage';
+import MenteeProgress from './pages/MenteeProgress';
 import Logo from './components/Logo';
 import Chatbot from './components/Chatbot';
 import LanguageSelector from './components/LanguageSelector';
@@ -113,6 +115,13 @@ export default function App() {
                           </Link>
                         )}
                         <hr className="my-1 border-gray-100 dark:border-gray-800" />
+                        <Link to="/assessments" onClick={() => setWellbeingMenuOpen(false)} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/10 text-gray-600 dark:text-gray-300 hover:text-emerald-600 transition-all group">
+                          <BrainCircuit size={16} className="text-emerald-500" />
+                          <div className="text-left">
+                            <p className="text-xs font-black uppercase">Psychometric Lab</p>
+                            <p className="text-[9px] text-gray-400 font-bold">Clinical GAD-7 & PHQ-9</p>
+                          </div>
+                        </Link>
                         <Link to="/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-darkbg transition-colors rounded-xl">
                           <Activity size={16} className="text-primary-500" /> Dashboard
                         </Link>
@@ -206,6 +215,8 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/assessments" element={<AssessmentPage />} />
+          <Route path="/mentor/mentees" element={<MenteeProgress />} />
           <Route path="/dashboard" element={<UniversalDashboard />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/community" element={<Community />} />
